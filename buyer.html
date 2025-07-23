@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Anime Payment - SeaBank</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body, html { height: 100%; font-family: 'Orbitron', sans-serif; color: white; overflow: hidden; }
+
+    .bg-slideshow {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: -3;
+    }
+
+    .bg-slideshow img {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 2s ease-in-out;
+    }
+
+    .bg-slideshow img.active {
+      opacity: 1;
+    }
+
+    .overlay {
+      background: rgba(0, 0, 0, 0.6);
+      min-height: 100vh;
+      padding: 30px;
+      overflow: auto;
+      z-index: 1;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: rgba(20, 20, 40, 0.9);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 0 25px #00ffff;
+      animation: fadeIn 1.5s ease-in-out;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 32px;
+      margin-bottom: 20px;
+      color: #00ffff;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      margin-top: 5px;
+      border-radius: 10px;
+      background: #111;
+      color: white;
+      font-size: 16px;
+    }
+
+    input[readonly] {
+      background: #222;
+      font-weight: bold;
+    }
+
+    button {
+      margin-top: 20px;
+      background: #00ffff;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0ff;
+    }
+
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+
+    .nav-btn {
+      background: #ff00ff;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-weight: bold;
+      box-shadow: 0 0 10px #ff00ff;
+    }
+
+    .nav-btn:hover {
+      background: #ff66ff;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 14px;
+      color: #ccc;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -2;
+    }
+
+    #popup {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.75);
+      z-index: 999;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #popup .content {
+      background: #111;
+      padding: 30px;
+      border-radius: 20px;
+      text-align: center;
+      box-shadow: 0 0 30px #00ffff;
+      animation: fadeIn 0.6s ease;
+    }
+
+    #popup .content h2 {
+      color: #00ffff;
+      margin-bottom: 15px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SLIDESHOW BACKGROUND -->
+  <div class="bg-slideshow" id="slideshow">
+    <img src="https://wallpapercave.com/wp/wp9500903.jpg" class="active" />
+    <img src="https://wallpapercave.com/wp/wp13141838.jpg" />
+    <img src="https://wallpapercave.com/wp/wp10806399.jpg" />
+    <img src="https://wallpapercave.com/wp/wp12466529.jpg" />
+    <img src="https://wallpapercave.com/wp/wp8214020.jpg" />
+  </div>
+
+  <!-- AUDIO VISUALIZER -->
+  <canvas id="visualizer"></canvas>
+
+  <!-- AUDIO -->
+  <audio id="bg-music" autoplay loop>
+    <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_3cbddf3136.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- KONTEN -->
+  <div class="overlay">
+    <nav>
+      <div class="nav-btn">🏠 Home</div>
+      <div class="nav-btn">💳 Payment</div>
+      <div class="nav-btn">📞 Contact: @Familysetiawanfamset</div>
+      <div class="nav-btn">📰 Berita</div>
+      <div class="nav-btn">🎮 Game</div>
+      <div class="nav-btn">🖼️ Galeri</div>
+      <div class="nav-btn">📦 Produk</div>
+      <div class="nav-btn">🛠️ Tools</div>
+    </nav>
+
+    <div class="container">
+      <h1>SeaBank Payment</h1>
+      <form>
+        <label for="receiver">Nama Penerima (SeaBank)</label>
+        <input type="text" id="receiver" value="Hadi Lukito" readonly />
+
+        <label for="name">Nama Pengirim</label>
+        <input type="text" id="name" placeholder="Masukkan nama Anda" required>
+
+        <label for="amount">Jumlah Pembayaran (Rp)</label>
+        <input type="number" id="amount" placeholder="Contoh: 100000" required>
+
+        <label for="method">Metode Pembayaran</label>
+        <select id="method">
+          <option value="seabank">SeaBank</option>
+          <option value="qris">QRIS</option>
+          <option value="gopay">GoPay</option>
+        </select>
+
+        <button type="button" onclick="showSuccess()">Kirim Pembayaran</button>
+      </form>
+
+      <footer>
+        Powered By : <strong>RizzZ</strong> 💻 | @Familysetiawanfamset
+      </footer>
+
+      <!-- FITUR BEBAS -->
+      <link href="https://t.me/Rizzoyau" rel="tele"
+      <div style="text-align:center; margin-top:20px;">
+        <button onclick="alert('JOIN CH:https://t.me/Rizzoyau')" style="background:#ffcc00; color:#000; font-weight:bold; padding:10px 20px; border:none; border-radius:10px; box-shadow: 0 0 10px #ffcc00;">🎁 Bonus Fitur</button>
+        <button onclick="window.location.href='https://t.me/Familysetiawanfamset'" style="margin-left:10px; background:#00ff99; color:#000; font-weight:bold; padding:10px 20px; border:none; border-radius:10px; box-shadow: 0 0 10px #00ff99;">🔗 Gabung Telegram</button>
+      </div>
+
+      <!-- RIWAYAT TRANSAKSI -->
+      <div id="history" style="margin-top:30px;">
+        <h2 style="color:#00ffff; font-size:20px; margin-bottom:10px;">📜 Riwayat Transaksi</h2>
+        <ul id="history-list" style="list-style:none; padding:0; color:white;"></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP PEMBAYARAN BERHASIL -->
+  <div id="popup">
+    <div class="content">
+      <h2>✅ Pembayaran Berhasil!</h2>
+      <p>Terima kasih telah melakukan pembayaran ke Hadi Lukito.</p>
+      <button onclick="document.getElementById('popup').style.display='none'" style="margin-top:20px; padding:10px 20px; background:#00ffff; border:none; color:black; border-radius:10px; font-weight:bold;">Tutup</button>
+    </div>
+  </div>
+
+  <!-- SCRIPT -->
+  <script>
+    // SLIDESHOW
+    const slides = document.querySelectorAll('#slideshow img');
+    let current = 0;
+    setInterval(() => {
+      slides[current].classList.remove('active');
+      current = (current + 1) % slides.length;
+      slides[current].classList.add('active');
+    }, 10000);
+ 
+    // AUDIO AUTOPLAY FIX
+    const audio = document.getElementById('bg-music');
+    document.addEventListener('DOMContentLoaded', () => {
+      audio.play().catch(() => {
+        console.log("Autoplay diblokir, tunggu interaksi user");
+      });
+      showHistory();
+    });
+
+    // VISUALIZER
+    const canvas = document.getElementById('visualizer');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const source = audioCtx.createMediaElementSource(audio);
+    const analyser = audioCtx.createAnalyser();
+    source.connect(analyser);
+    analyser.connect(audioCtx.destination);
+    analyser.fftSize = 256;
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+
+    function draw() {
+      requestAnimationFrame(draw);
+      analyser.getByteFrequencyData(dataArray);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const barWidth = (canvas.width / bufferLength) * 2.5;
+      let x = 0;
+      for (let i = 0; i < bufferLength; i++) {
+        const barHeight = dataArray[i];
+        ctx.fillStyle = 'rgb(' + (barHeight + 100) + ',50,255)';
+        ctx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
+        x += barWidth + 1;
+      }
+    }
+
+    audio.onplay = () => {
+      audioCtx.resume().then(draw);
+    };
+
+    // POPUP + RIWAYAT
+    function showSuccess() {
+      const name = document.getElementById('name').value.trim();
+      const amount = document.getElementById('amount').value.trim();
+      const method = document.getElementById('method').value;
+      const time = new Date().toLocaleString('id-ID');
+
+      if (!name || !amount) {
+        alert("SILAHKAN CEK DISINI SETELAH BERTRANSAKSI!");
+        return;
+      }
+
+      const transaction = { name, amount, method, time };
+      const history = JSON.parse(localStorage.getItem('history') || '[]');
+      history.push(transaction);
+      localStorage.setItem('history', JSON.stringify(history));
+      
+      document.getElementById('popup').style.display = 'flex';
+      showHistory();
+    }
+
+    function showHistory() {
+      const list = document.getElementById('history-list');
+      const data = JSON.parse(localStorage.getItem('history') || '[]').reverse();
+      list.innerHTML = data.map(item => `
+        <li style="margin-bottom:10px; padding:10px; background:#222; border-radius:10px;">
+          🧾 <strong>${item.name}</strong> mengirim Rp${item.amount} via ${item.method.toUpperCase()}<br/>
+          🕒 ${item.time}
+        </li>
+      `).join('');
+    }
+  </script>
+
+</body>
+</html>
